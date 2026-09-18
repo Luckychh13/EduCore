@@ -8,6 +8,7 @@ import hpp from "hpp"
 import {xss} from "express-xss-sanitizer"
 import cookieParser from "cookie-parser"
 import cors from "cors"
+import healthRoute from './routes/health.routes'
 
 dotenv.config()
 
@@ -63,6 +64,9 @@ app.use(cors({
         "device-remember-token",
     ]
 }))
+
+//API Routes
+app.use('/health', healthRoute)
 
 //404
 app.use((req,res) => {
