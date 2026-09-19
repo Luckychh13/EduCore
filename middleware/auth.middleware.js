@@ -1,4 +1,4 @@
-import { ApiError, asyncHandler } from "./error.middleware";
+import { ApiError, asyncHandler } from "./error.middleware.js";
 import jwt from 'jsonwebtoken'
 
 export const isAuthenticated = asyncHandler(async(req,res,next) => {
@@ -14,8 +14,24 @@ export const isAuthenticated = asyncHandler(async(req,res,next) => {
     next()
 
    } catch (error) {
-    throw new ApiError(401,"Invalid access token")
-   }
-    
-    
+    if (error.name === "JsonWebTokenError") {
+          throw new ApiError("Invalid token. Please log in again.", 401);
+        }
+        if (error.name === "TokenExpiredError") {
+          throw new ApiError("Your token has expired. Please log in again.", 401);
+        }
+        throw error;
+   } 
 })
+
+export const restrictTo = (...roles) => {
+  return catchAsync(async (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      throw new AppError(
+        "You do not have permission to perform this action",
+        403
+      );
+    }
+    next();
+  });
+}

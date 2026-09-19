@@ -8,7 +8,9 @@ import hpp from "hpp"
 import {xss} from "express-xss-sanitizer"
 import cookieParser from "cookie-parser"
 import cors from "cors"
-import healthRoute from './routes/health.routes'
+import healthRoute from './routes/health.routes.js'
+import userRoute from './routes/user.routes.js'
+import { sendMail } from "./utils/mailService.js"
 
 dotenv.config()
 
@@ -17,7 +19,7 @@ const PORT = process.env.PORT
 
 //Rate-limiting
 const limiter = rateLimit({
-    windowMs:15*10000,
+    windowMs:15*60*1000,
     limit:100,
     message:"Too many reuest, please try later"
 })
@@ -39,6 +41,30 @@ app.use(express.json({limit:"10kb"}))
 app.use(express.urlencoded({extended: true, limit:"10kb"}))
 app.use(cookieParser())
 
+//Cors congig
+app.use(cors({
+    origin:process.env.CLIENT_URL,
+    credentials:true,
+    methods:['GET','PUT','DELETE','PATCH','HEAD','OPTIONS'],
+    allowedHeaders:[
+        "Content-Type",
+        "Authorization",
+        "Origin",
+        "X-Requested-With",
+        "Accept",
+        "device-remember-token",
+    ]
+}))
+
+//API Routes
+app.use('/health', healthRoute)
+app.use('/api/v1/user',userRoute)
+
+//404
+app.use((req,res) => {
+    res.status(404).json({status:"error",message:"Route not found"})
+})
+
 //Global Error
 app.use((err,req,res,next) => {
     console.error(err.stack);
@@ -49,31 +75,7 @@ app.use((err,req,res,next) => {
     })
 })
 
-//Cors congig
-app.use(cors({
-    origin:process.env.CLIENT_URL,
-    credentials:true,
-    methods:['GET','PUT','DELETE','PATCH','HEAD','OPTIONS'],
-    allowedHeaders:[
-        "Content-Type",
-        "Authorization",
-        "Access-Control-Allow-Origin",
-        "Origin",
-        "X-Requested-With",
-        "Accept",
-        "device-remember-token",
-    ]
-}))
-
-//API Routes
-app.use('/health', healthRoute)
-
-//404
-app.use((req,res) => {
-    res.status(404).json({status:"error",message:"Route not found"})
-})
-
-app.listen(PORT, () => {
+app.listen(PORT,() => {
     console.log(`Server is running at ${PORT} in ${process.env.NODE_ENV}`);
     
 })
