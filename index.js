@@ -10,7 +10,7 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 import healthRoute from './routes/health.routes.js'
 import userRoute from './routes/user.routes.js'
-import { sendMail } from "./utils/mailService.js"
+import razopayRoute from './routes/razorpay.routes.js'
 
 dotenv.config()
 
@@ -59,6 +59,7 @@ app.use(cors({
 //API Routes
 app.use('/health', healthRoute)
 app.use('/api/v1/user',userRoute)
+app.use('/api/v1/razorpay',razopayRoute)
 
 //404
 app.use((req,res) => {

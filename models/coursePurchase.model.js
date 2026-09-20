@@ -33,3 +33,5 @@ coursePurchaseSchema.methods.processRefund = async function (reason,amount){
     this.refundedAmount = amount || this.amount
     return this.save()
 }
+
+export const CoursePurchase = mongoose.model('CoursePurchase',coursePurchaseSchema)
